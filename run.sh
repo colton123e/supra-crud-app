@@ -63,6 +63,7 @@ fi
 echo "Runnning the npm intall commands and starting the server."
 cd client
 npm install
+npm build
 
 cd ../server
 npm install
