@@ -273,7 +273,11 @@
 
 .description {
   margin-top: 1rem;
-  font-size: 1.25rem;
+  font-size: 1rem;
+  width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
 }
 
 .descriptionLabel {

@@ -188,7 +188,7 @@ export default function ItemDetailPage() {
             onChange={handleInputChange}
           />
         ) : (
-          <p>{item.description}</p>
+          <p className='description'>{item.description}</p>
         )}
       </div>
       <div>

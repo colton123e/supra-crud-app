@@ -54,7 +54,7 @@ export default function InventoryPage() {
           items.map((item) => (
             <div key={item.id} className="item-card">
               <h2 className="itemName">{item.itemName}</h2>
-              <p className="itemDescription">
+              <p className="description">
                 {item.description.length > 100
                   ? `${item.description.slice(0, 100)}...`
                   : item.description}
