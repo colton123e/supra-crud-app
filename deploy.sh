@@ -62,16 +62,23 @@ fi
 # Navigate to the app directory
 cd "$APP_DIR"
 
+# Set up the backend
+echo "Setting up the backend..."
+cd ../server
+npm install
+
 # Install and build the client
 echo "Setting up the frontend..."
 cd client
 npm install
 npm run build
 
-# Set up the backend
-echo "Setting up the backend..."
-cd ../server
-npm install
+# Install PM2 to manage the backend
+echo "Installing PM2 and starting the backend..."
+sudo npm install -g pm2
+pm2 start server.js --name my-app-backend --cwd $APP_DIR/server
+pm2 startup
+pm2 save
 
 # Create Nginx configuration
 echo "Configuring Nginx..."
@@ -159,13 +166,6 @@ sudo certbot --nginx -d $DOMAIN -d $DOMAIN --non-interactive --agree-tos -m $EMA
 
 # Test Certbot renewal
 sudo certbot renew --dry-run
-
-# Install PM2 to manage the backend
-echo "Installing PM2 and starting the backend..."
-sudo npm install -g pm2
-pm2 start server.js --name my-app-backend --cwd $APP_DIR/server
-pm2 startup
-pm2 save
 
 # Display completion message
 echo "Deployment completed! Access your application at https://$DOMAIN"
