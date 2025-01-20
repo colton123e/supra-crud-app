@@ -85,17 +85,17 @@ server {
 
     # Serve static files
     location / {
-        try_files $uri /index.html;
+        try_files \$uri /index.html;
     }
 
     # Proxy API requests to the backend
     location /api/ {
         proxy_pass http://localhost:5000; # Adjust to your backend's address
         proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
+        proxy_set_header Host \$host;
+        proxy_cache_bypass \$http_upgrade;
     }
 
     # Error handling
