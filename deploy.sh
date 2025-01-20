@@ -69,7 +69,7 @@ npm install
 
 # Install and build the client
 echo "Setting up the frontend..."
-cd $APP_DIR/server
+cd $APP_DIR/client
 npm install
 npm run build
 
