@@ -81,7 +81,7 @@ server {
     listen 80;
     server_name $DOMAIN;
 
-    root $APP_DIR/client/build;
+    root $APP_DIR/client/dist;
     index index.html;
 
     location / {
@@ -102,9 +102,8 @@ server {
 server {
     listen 443 ssl;
     listen [::]:443 ssl;
-    server_name your-domain.com;
 
-    root /var/www/my-app/client/build;
+    root /var/www/my-app/client/dist;
     index index.html;
 
     # SSL certificates
