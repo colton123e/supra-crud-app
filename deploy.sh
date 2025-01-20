@@ -9,9 +9,6 @@ DOMAIN="your.domain.com"
 EMAIL="your.email@email.com"
 
 install_node() {
-  # Install required software
-  
-
   # Array of known package managers
   PACKAGE_MANAGERS=("apt" "apt-get" "dnf" "yum" "pacman" "brew")
 
@@ -50,20 +47,7 @@ install_node() {
   fi
 }
 
-# 1. Check if Node.js is installed
-if ! command -v node >/dev/null 2>&1; then
-  install_node
-else
-  echo "Node.js is already installed."
-fi
-
-# 2. Check if npm is installed
-if ! command -v npm >/dev/null 2>&1; then
-  echo "npm not found. Attempting to install with the same approach..."
-  install_node
-else
-  echo "npm is already installed."
-fi
+install_node
 
 # Clone the repository
 if [ ! -d "$APP_DIR" ]; then
