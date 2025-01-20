@@ -5,8 +5,9 @@
  * This uses React Router (v6).
  */
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { getApiBaseUrl } from './utils/config';
 import RegisterPage from './pages/registerPage';
 import LoginPage from './pages/loginPage';
 import InventoryPage from './pages/inventoryPage';
@@ -22,11 +23,12 @@ export default function App() {
 
   useEffect(() => {
     const fetchUserDetails = async () => {
+      const apiBaseUrl = getApiBaseUrl();
       const token = localStorage.getItem("authToken");
       if (!token) return;
 
       try {
-        const response = await fetch("http://localhost:5000/api/auth/me", {
+        const response = await fetch(`${apiBaseUrl}/api/auth/me`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,

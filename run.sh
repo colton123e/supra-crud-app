@@ -73,11 +73,11 @@ node server.js &
 SERVER_PID=$!
 echo "Server running with PID: $SERVER_PID"
 
-# Pause for 10 seconds to let the backend start
+# Pause for 15 seconds to let the backend start
 echo
-echo "Wait 10 seconds for the backend to start"
+echo "Wait 15 seconds for the backend to start"
 echo
-sleep 10
+sleep 15
 
 
 # Navigate back to the client directory and start the client

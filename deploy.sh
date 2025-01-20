@@ -5,16 +5,65 @@ set -e
 # Variables
 APP_DIR="/var/www/my-app"
 REPO_URL="https://github.com/colton123e/supra-crud-app.git"
-DOMAIN="app.cehomenet.pro"
-EMAIL="homenet_manager@cehomenet.pro"
+DOMAIN="your.domain.com"
+EMAIL="your.email@email.com"
 
-# Update the system
-echo "Updating system packages..."
-sudo apt update && sudo apt upgrade -y
+install_node() {
+  # Install required software
+  
 
-# Install required software
-echo "Installing required packages (Node.js, npm, Git, Nginx, Certbot)..."
-sudo apt install -y nodejs npm git nginx certbot python3-certbot-nginx
+  # Array of known package managers
+  PACKAGE_MANAGERS=("apt" "apt-get" "dnf" "yum" "pacman" "brew")
+
+  for pm in "${PACKAGE_MANAGERS[@]}"; do
+      echo "Using '$pm' to install required packages (Node.js, npm, Git, Nginx, Certbot)..."
+
+      case $pm in
+        apt|apt-get)
+          # Update package list and install Node.js + npm
+          sudo $pm update -y && sudo $pm install -y nodejs npm git nginx certbot python3-certbot-nginx
+          ;;
+        dnf|yum)
+          sudo $pm install -y nodejs npm git nginx certbot python3-certbot-nginx
+          ;;
+        pacman)
+          sudo $pm -Sy --noconfirm nodejs npm git nginx certbot python3-certbot-nginx
+          ;;
+        brew)
+          brew update && brew install node npm git nginx certbot python3-certbot-nginx
+          ;;
+        *)
+          echo "Unsupported or unrecognized package manager: $pm"
+          ;;
+      esac
+      # After attempting install, break from loop
+      break
+  done
+
+  # Re-check if node was successfully installed
+  if ! command -v node >/dev/null 2>&1; then
+    echo "Failed to install Node.js with known package managers."
+    echo "Please install Node.js and npm manually, then re-run this script."
+    exit 1
+  else
+    echo "Node.js installed successfully!"
+  fi
+}
+
+# 1. Check if Node.js is installed
+if ! command -v node >/dev/null 2>&1; then
+  install_node
+else
+  echo "Node.js is already installed."
+fi
+
+# 2. Check if npm is installed
+if ! command -v npm >/dev/null 2>&1; then
+  echo "npm not found. Attempting to install with the same approach..."
+  install_node
+else
+  echo "npm is already installed."
+fi
 
 # Clone the repository
 if [ ! -d "$APP_DIR" ]; then
@@ -75,8 +124,8 @@ server {
     index index.html;
 
     # SSL certificates
-    ssl_certificate /etc/letsencrypt/live/app.cehomenet.pro/cert.pem;
-    ssl_certificate_key /etc/letsencrypt/live/app.cehomenet.pro/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/$DOMAIN/cert.pem;
+    ssl_certificate_key /etc/letsencrypt/live/$DOMAIN/privkey.pem;
 
     # SSL settings
     ssl_protocols TLSv1.2 TLSv1.3;

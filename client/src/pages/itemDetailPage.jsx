@@ -8,6 +8,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { UserContext } from "../context/UserContext";
+import { getApiBaseUrl } from '../utils/config';
 import BannerMessage from '../components/BannerMessage';
 import DeleteConfirmation from '../components/DeleteConfirmation';
 import "../App.css"; // Import the CSS file
@@ -30,7 +31,8 @@ export default function ItemDetailPage() {
     // Fetch item details
     const fetchItem = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/items/${id}`, {
+        const apiBaseUrl = getApiBaseUrl();
+        const response = await fetch(`${apiBaseUrl}/api/items/${id}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
@@ -57,7 +59,8 @@ export default function ItemDetailPage() {
 
   const handleSubmit = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/items/${id}`, {
+      const apiBaseUrl = getApiBaseUrl();
+      const response = await fetch(`${apiBaseUrl}/api/items/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -112,7 +115,8 @@ export default function ItemDetailPage() {
   // Handle delete action
   const confirmDelete = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/items/${id}`, {
+      const apiBaseUrl = getApiBaseUrl();
+      const response = await fetch(`${apiBaseUrl}/api/items/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,

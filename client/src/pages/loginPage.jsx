@@ -2,6 +2,7 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BannerMessage from '../components/BannerMessage';
+import { getApiBaseUrl } from '../utils/config';
 import "../App.css"; // Import the CSS file
 import { UserContext } from "../context/UserContext";
 
@@ -17,7 +18,8 @@ export default function LoginPage() {
     e.preventDefault();
     // Call the API endpoint /api/auth/login
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const apiBaseUrl = getApiBaseUrl();
+      const response = await fetch(`${apiBaseUrl}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })

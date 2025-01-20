@@ -1,6 +1,7 @@
 // client/src/pages/registerPage.jsx
 import React, { useState } from 'react';
 import BannerMessage from '../components/BannerMessage';
+import { getApiBaseUrl } from '../utils/config';
 import "../App.css"; // Import the CSS file
 import { useNavigate } from 'react-router-dom';
 
@@ -97,7 +98,8 @@ export default function RegisterPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/auth/register", {
+      const apiBaseUrl = getApiBaseUrl();
+      const response = await fetch(`${apiBaseUrl}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

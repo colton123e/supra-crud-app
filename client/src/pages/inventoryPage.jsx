@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { UserContext } from "../context/UserContext";
+import { getApiBaseUrl } from '../utils/config';
 import "../App.css"; // Import the CSS file
 import { Link } from "react-router-dom";
 
@@ -10,10 +11,11 @@ export default function InventoryPage() {
 
   useEffect(() => {
     const fetchItems = async () => {
+      const apiBaseUrl = getApiBaseUrl();
       const endpoint =
         activeTab === "my-items"
-          ? "http://localhost:5000/api/items/mine"
-          : "http://localhost:5000/api/items";
+          ? `${apiBaseUrl}/api/items/mine`
+          : `${apiBaseUrl}/api/items`;
       try {
         const response = await fetch(endpoint, {
           headers: {

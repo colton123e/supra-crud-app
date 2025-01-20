@@ -36,6 +36,21 @@ and `npm run dev` in the background.
    `npm run dev`
    (in the **client** folder).
 
+## Server ENV Configuration
+
+---
+
+The `.env` file is automatically generated when starting the server but
+there are currently 2 options configurable in a `.env` file located in the **server** folder:
+
+**JWT_SECRET=** Should be a long random string, it is recommended to leave this blank and let the
+script automatically generate a value.
+
+**API_BASE_URL=** Should be in the format "http://{hostname or IP}:{PORT}
+The API_BASE_URL will be automatically generated on server startup based on the detected hostname.
+If using WSL, it may be necessary to manually set the hostname to `localhost` or the IP address from
+`ip addr show eth0` command.
+
 ## Features
 
 ---

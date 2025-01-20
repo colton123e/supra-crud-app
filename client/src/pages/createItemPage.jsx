@@ -9,7 +9,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BannerMessage from '../components/BannerMessage';
+import { getApiBaseUrl } from '../utils/config';
 import "../App.css"; // Import the CSS file
+
 
 export default function CreateItemPage() {
   // State variables for the form inputs
@@ -33,8 +35,9 @@ export default function CreateItemPage() {
      };
 
     try {
+      const apiBaseUrl = getApiBaseUrl();
       const token = localStorage.getItem("authToken");
-      const response = await fetch('http://localhost:5000/api/items', {
+      const response = await fetch(`${apiBaseUrl}/api/items`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

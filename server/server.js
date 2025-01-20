@@ -9,92 +9,100 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
-const authRoutes = require("./routes/authRoutes");
-const itemRoutes = require("./routes/itemRoutes");
 const fs = require("fs");
 const crypto = require("crypto");
-// Initialize sequelize instances for users and items
-const sequelize = require("./database/sequelize"); // Sequelize instance
-require("./database/models/User"); // Ensure models are defined
-require("./database/models/Item"); // Ensure models are defined
-require("dotenv").config();
+const os = require("os");
+const sequelize = require("./database/sequelize");
+require("./database/models/User");
+require("./database/models/Item");
+require("dotenv").config(); // Load .env values first
 
-app.use(cors()); // Allows cross-origin requests (React dev server)
-app.use(bodyParser.json()); // Allows parsing JSON bodies
+// Middleware
+app.use(cors());
+app.use(bodyParser.json());
 app.use(express.json());
 
-// Routes for auth and items
+// Routes
+const authRoutes = require("./routes/authRoutes");
+const itemRoutes = require("./routes/itemRoutes");
 app.use("/api/auth", authRoutes);
 app.use("/api/items", itemRoutes);
 
-// Serve static files from the React app
+// Serve static files
 app.use(express.static(path.join(__dirname, "../client/dist")));
-
-// Handle client-side routing, return index.html for unknown routes
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../client/dist", "index.html"));
 });
 
-// Path to the .env file
+// Configuration
+const PORT = process.env.PORT || 5000;
+const HOSTNAME = process.env.HOSTNAME || os.hostname();
+let API_BASE_URL = process.env.API_BASE_URL || `http://${HOSTNAME}:${PORT}`;
+
+// Paths
 const envFilePath = path.resolve(__dirname, ".env");
+const configPath = path.join(__dirname, "../client/public/config.json");
+const configPathDist = path.join(__dirname, "../client/dist/config.json");
 
-// Check if JWT_SECRET exists
-if (!process.env.JWT_SECRET) {
-  console.warn("JWT_SECRET is not defined. Generating and writing to .env...");
+// Update or create .env file
+function updateEnvFile() {
+  const requiredEnvVars = {
+    JWT_SECRET:
+      process.env.JWT_SECRET || crypto.randomBytes(100).toString("hex"),
+    API_BASE_URL: `http://${HOSTNAME}:${PORT}`,
+  };
 
-  // Generate a secure random key
-  const newSecret = crypto.randomBytes(100).toString("hex");
-
-  // Write the new secret to .env
-  const envContent = `JWT_SECRET=${newSecret}\n`;
-  try {
-    if (fs.existsSync(envFilePath)) {
-      // Append to existing .env file
-      fs.appendFileSync(envFilePath, envContent);
-      console.log("JWT_SECRET added to existing .env file.");
-    } else {
-      // Create a new .env file
-      fs.writeFileSync(envFilePath, envContent);
-      console.log(".env file created, and JWT_SECRET added.");
-    }
-
-    // Update the process environment so it takes effect immediately
-    process.env.JWT_SECRET = newSecret;
-  } catch (err) {
-    console.error("Error writing to .env file:", err);
-    process.exit(1); // Exit if writing to .env fails
+  let existingVars = {};
+  if (fs.existsSync(envFilePath)) {
+    const content = fs.readFileSync(envFilePath, "utf-8");
+    existingVars = content
+      .split("\n")
+      .filter((line) => line.trim() && !line.startsWith("#"))
+      .reduce((acc, line) => {
+        const [key, value] = line.split("=");
+        acc[key.trim()] = value ? value.trim() : "";
+        return acc;
+      }, {});
   }
+
+  // Add missing variables
+  const updatedVars = { ...requiredEnvVars, ...existingVars };
+
+  // Write .env file
+  const envContent = Object.entries(updatedVars)
+    .map(([key, value]) => `${key}=${value}`)
+    .join("\n");
+  fs.writeFileSync(envFilePath, envContent.trim(), "utf-8");
+  console.log(".env file updated.");
+  process.env = { ...process.env, ...updatedVars }; // Ensure runtime variables are updated
 }
 
-// Sync all defined models to the DB
+// Generate config.json for the front end
+function generateConfig() {
+  const config = { apiBaseUrl: API_BASE_URL };
+  fs.writeFileSync(configPath, JSON.stringify(config, null, 2), "utf-8");
+  fs.writeFileSync(configPathDist, JSON.stringify(config, null, 2), "utf-8");
+  console.log(`Generated config.json with API base URL: ${API_BASE_URL}`);
+}
+
+// Ensure .env and generate config.json
+updateEnvFile();
+API_BASE_URL = process.env.API_BASE_URL; // Ensure API_BASE_URL is updated
+generateConfig();
+
+// Synchronize database and start the server
 (async () => {
   try {
-    //Ensure the database can be connected
-    await sequelize
-      .authenticate()
-      .then(() => console.log("Connected to the SQLite database."))
-      .catch((err) => {
-        console.error("Unable to connect to the database:", err.message);
-        process.exit(1);
-      });
-
-    // Synchronize the database
-    await sequelize
-      .sync({ alter: false })
-      .then(() => console.log("Database synchronized."))
-      .catch((err) => {
-        console.error("Database synchronization failed:", err.message);
-        process.exit(1);
-      });
-
-    // Then start the server
-    const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
+    await sequelize.authenticate();
+    console.log("Connected to the SQLite database.");
+    await sequelize.sync({ alter: false });
+    console.log("Database synchronized.");
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Server running at ${API_BASE_URL}`);
     });
   } catch (err) {
-    console.error("Unable to connect to the database:", err);
+    console.error("Database connection failed:", err.message);
+    process.exit(1);
   }
 })();
