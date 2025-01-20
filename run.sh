@@ -68,7 +68,38 @@ npm run build
 cd ../server
 npm install
 
-# Start the server and store its PID
+# Configure the hostname, Start the server and store its PID
+# ENV File paths
+ENV_FILE="./.env"
+PORT=5000
+
+# Check if running in WSL
+if grep -qi "microsoft" /proc/version; then
+    echo "Running inside WSL. Setting hostname to localhost in .env file..."
+    HOSTNAME="localhost"
+else
+    echo "Not running in WSL. Using machine hostname..."
+    HOSTNAME=$(hostname)
+fi
+
+# Ensure .env file exists
+if [ ! -f "$ENV_FILE" ]; then
+    echo ".env file not found. Creating a new one..."
+    touch "$ENV_FILE"
+fi
+
+# Update or add API_BASE_URL in the .env file
+if grep -q "^API_BASE_URL=" "$ENV_FILE"; then
+    sed -i "s|^API_BASE_URL=.*|API_BASE_URL=http://$HOSTNAME:$PORT|" "$ENV_FILE"
+    echo "Updated API_BASE_URL to http://$HOSTNAME:$PORT in .env file."
+else
+    echo "API_BASE_URL=http://$HOSTNAME:$PORT" >> "$ENV_FILE"
+    echo "Added API_BASE_URL=http://$HOSTNAME:$PORT to .env file."
+fi
+
+echo ".env setup complete. Current contents:"
+cat "$ENV_FILE"
+echo
 echo "Starting the server..."
 node server.js &
 SERVER_PID=$!
