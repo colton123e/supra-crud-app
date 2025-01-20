@@ -97,8 +97,6 @@ else
     echo "Added API_BASE_URL=http://$HOSTNAME:$PORT to .env file."
 fi
 
-echo ".env setup complete. Current contents:"
-cat "$ENV_FILE"
 echo
 echo "Starting the server..."
 node server.js &
