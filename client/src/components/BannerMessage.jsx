@@ -1,3 +1,4 @@
+// client/src/components/BannerMessage.jsx
 import React from "react";
 
 const BannerMessage = ({ message, type, onClose }) => {

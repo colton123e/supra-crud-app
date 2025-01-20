@@ -16,7 +16,7 @@ async function init() {
   } catch (error) {
       console.error('Failed to initialize app:', error);
       // Optionally, render an error screen or fallback UI
-      ReactDOM.createRoot(document.getElementById('root')).render(
+      createRoot(document.getElementById('root')).render(
           <div style={{ textAlign: 'center', marginTop: '20px' }}>
               <h1>Failed to load configuration</h1>
               <p>Please try again later.</p>

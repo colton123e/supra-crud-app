@@ -1,3 +1,4 @@
+// client/src/components/DeleteConfirmation.jsx
 import React from "react";
 
 const DeleteConfirmation = ({ message, onConfirm, onCancel }) => {
