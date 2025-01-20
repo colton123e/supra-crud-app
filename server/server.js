@@ -30,11 +30,11 @@ app.use("/api/auth", authRoutes);
 app.use("/api/items", itemRoutes);
 
 // Serve static files from the React app
-app.use(express.static(path.join(__dirname, "client/dist")));
+app.use(express.static(path.join(__dirname, "../client/dist")));
 
 // Handle client-side routing, return index.html for unknown routes
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "client/dist", "index.html"));
+  res.sendFile(path.join(__dirname, "../client/dist", "index.html"));
 });
 
 // Path to the .env file
