@@ -106,7 +106,20 @@ EOL
 # Enable Nginx configuration
 sudo ln -sf $NGINX_CONF /etc/nginx/sites-enabled/
 sudo nginx -t
-sudo systemctl reload nginx
+# Try to reload Nginx, start if it fails
+echo "Reloading Nginx configuration..."
+if ! sudo systemctl reload nginx; then
+  echo "Nginx reload failed. Attempting to start Nginx..."
+  sudo systemctl start nginx
+  if [ $? -ne 0 ]; then
+    echo "Failed to start Nginx. Please check the Nginx configuration and logs."
+    exit 1
+  else
+    echo "Nginx started successfully."
+  fi
+else
+  echo "Nginx reloaded successfully."
+fi
 
 # Obtain and configure SSL with Certbot
 echo "Obtaining SSL certificate with Certbot..."
