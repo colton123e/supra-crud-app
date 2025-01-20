@@ -46,7 +46,7 @@ NGINX_CONF="/etc/nginx/sites-available/my-app"
 sudo bash -c "cat > $NGINX_CONF" <<EOL
 server {
     listen 80;
-    server_name $DOMAIN www.$DOMAIN;
+    server_name $DOMAIN;
 
     root $APP_DIR/client/build;
     index index.html;
@@ -64,6 +64,41 @@ server {
         proxy_cache_bypass \$http_upgrade;
     }
 
+    error_page 404 /index.html;
+}
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name your-domain.com;
+
+    root /var/www/my-app/client/build;
+    index index.html;
+
+    # SSL certificates
+    ssl_certificate /etc/letsencrypt/live/app.cehomenet.pro/cert.pem;
+    ssl_certificate_key /etc/letsencrypt/live/app.cehomenet.pro/privkey.pem;
+
+    # SSL settings
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+
+    # Serve static files
+    location / {
+        try_files $uri /index.html;
+    }
+
+    # Proxy API requests to the backend
+    location /api/ {
+        proxy_pass http://localhost:5000; # Adjust to your backend's address
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    # Error handling
     error_page 404 /index.html;
 }
 EOL
