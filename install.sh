@@ -75,7 +75,7 @@ sudo systemctl reload nginx
 
 # Obtain and configure SSL with Certbot
 echo "Obtaining SSL certificate with Certbot..."
-sudo certbot --nginx -d $DOMAIN -d www.$DOMAIN --non-interactive --agree-tos -m $EMAIL
+sudo certbot --nginx -d $DOMAIN -d $DOMAIN --non-interactive --agree-tos -m $EMAIL
 
 # Test Certbot renewal
 sudo certbot renew --dry-run
