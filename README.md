@@ -1,33 +1,55 @@
 # supra-crud-app
 
-## This app uses the following Stack
+## Technology Stack
+
+---
 
 - **Front-End**: React
-- **Back-End**: Express.js
-- **Database**: SQLite
-- **Communication**: RESTful APIs
+- **Back-End** Express.js
+- **Database** SQLite
+- **Communication** RESTful APIs
 
-## Setup
+## Automatic Startup
 
-1. Run `npm install` in both `client` and `server` directories.
-2. Start the back-end: `node server.js`.
-3. Start the front-end: `npm run` (in the `client` folder).
+---
+
+To start the app automatically, run the `run.sh` script using either of the following commands:
+
+`./run.sh`
+or
+`bash run.sh`
+
+This script executes the manual startup steps (outlined below) and runs `node server.js`
+and `npm run dev` in the background.
+
+## Manual Startup
+
+---
+
+1. Navigate to both the **client** and **server** directories and run:
+   `npm install`
+
+2. Start the back-end by running:
+   `node server.js`
+
+3. Start the front-end by running:
+   `npm run dev`
+   (in the **client** folder).
 
 ## Features
 
-- Basic CRUD operations
-- SQLite database
+---
 
-### The following scratch setup instructions are mostly for my own documentation
+- Basic Create, Read, Update, and Delete (CRUD) operations
+- SQLite database integration
 
-## Scratch Setup - Server
+## Additional Notes
 
-1. cd server/
-2. npm init -y
-3. npm install express sqlite3 body-parser cors
+---
 
-## Scratch Setup - Client
-
-1. cd client/
-2. npm create vite@latest . -- --template react
-3. npm install
+- Docker elements are included in the repository. However, deploying the app via Docker
+  in its current configuration does not work for deployment on external servers.
+- A deploy script is included to facilitate app deployment on other servers, but it is also
+  currently non-functional.
+- Both issues are related to networking configuration problems and are not a reflection of the
+  application itself. These features were added for personal education and experimentation.
