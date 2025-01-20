@@ -1,0 +1,37 @@
+services:
+  client:
+    image: colton123e/supra-crud-app-client:latest
+    networks:
+      - app_network
+
+  server:
+    image: colton123e/supra-crud-app-client:latest
+    ports:
+      - "5000:5000"
+    depends_on:
+      - sqlite
+    networks:
+      - app_network
+
+  sqlite:
+    image: nouchka/sqlite3
+    volumes:
+      - ./server/database:/data
+    environment:
+      - SQLITE_FILE=/data/db.sqlite
+    networks:
+      - app_network
+
+  nginx:
+    image: colton123e/supra-crud-app-nginx:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - client
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge

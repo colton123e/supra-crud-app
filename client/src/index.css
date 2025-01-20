@@ -11,6 +11,7 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  --navbar-height: 65px;
 }
 
 a {
@@ -24,6 +25,7 @@ a:hover {
 
 body {
   margin: 0;
+  padding: 0;
   display: flex;
   place-items: center;
   min-width: 320px;
@@ -37,6 +39,7 @@ h1 {
 
 button {
   border-radius: 8px;
+  margin-right: 2rem;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
   font-size: 1em;
@@ -45,9 +48,11 @@ button {
   background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
+  width: 120px;
 }
 button:hover {
-  border-color: #646cff;
+  background-color: #e5e5e5;
+  color: #1a1a1a;
 }
 button:focus,
 button:focus-visible {
@@ -60,7 +65,7 @@ button:focus-visible {
     background-color: #ffffff;
   }
   a:hover {
-    color: #747bff;
+    color: #393fff;
   }
   button {
     background-color: #f9f9f9;

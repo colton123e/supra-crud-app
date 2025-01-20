@@ -1,39 +1,66 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+// client/src/App.jsx
+
+/**
+ * Main component that holds routes and top-level navigation.
+ * This uses React Router (v6).
+ */
+
+import React, { useEffect, useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import RegisterPage from './pages/registerPage';
+import LoginPage from './pages/loginPage';
+import InventoryPage from './pages/inventoryPage';
+import ItemDetailPage from './pages/itemDetailPage';
+import CreateItemPage from './pages/createItemPage';
+import HomePage from "./pages/homePage";
+import Navbar from './components/Navbar';
+import { UserProvider } from "./context/UserContext";
 import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      const token = localStorage.getItem("authToken");
+      if (!token) return;
+
+      try {
+        const response = await fetch("http://localhost:5000/api/auth/me", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data); // Save user data (e.g., { id, firstName, email })
+        } else {
+          console.error("Failed to fetch user details.");
+        }
+      } catch (err) {
+        console.error("Error fetching user details:", err);
+      }
+    };
+
+    fetchUserDetails();
+  }, []);
 
   return (
-    <>
-      <div>
-        <h1>Welcome to my Supra Coders CRUD Application!</h1>
-        <h2>I'm really excited to do this project!</h2>
-      </div>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 6)}>
-          Count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <UserProvider>
+    <Router>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/home" element={<HomePage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/inventory" element={<InventoryPage />} />
+        <Route path="/items/create" element={<CreateItemPage />} />
+        <Route path="/items/:id" element={<ItemDetailPage />} />
+      </Routes>
+    </Router>
+    </UserProvider>
+  );
 }
-
-export default App

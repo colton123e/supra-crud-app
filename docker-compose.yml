@@ -1,0 +1,44 @@
+networks:
+  app_network:
+    driver: bridge
+
+services:
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    networks:
+      - app_network
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000" # Map Express.js port to localhost
+    depends_on:
+      - sqlite
+    networks:
+      - app_network
+
+  sqlite:
+    image: nouchka/sqlite3
+    volumes:
+      - ./server/database:/data
+    environment:
+      - SQLITE_FILE=/data/db.sqlite
+    networks:
+      - app_network
+
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./nginx-proxy/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx-proxy/ssl:/etc/nginx/ssl:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - client
+    networks:
+      - app_network

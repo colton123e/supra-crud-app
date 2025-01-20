@@ -1,0 +1,6 @@
+.git
+node_modules
+db.sqlite
+server/database/db.sqlite
+*.sqlite
+*.sqlite3
