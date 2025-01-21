@@ -51,6 +51,7 @@ To deploy the app on a webserver with nginx:
 One line command to get to `deploy.sh` edit:
 
 `git clone https://github.com/colton123e/supra-crud-app.git; cd supra-crud-app; nano deploy.sh`
+
 Then `bash deploy.sh`
 
 ## Server ENV Configuration
