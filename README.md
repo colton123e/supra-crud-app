@@ -43,9 +43,10 @@ One line command:
 
 ## Deployment Startup
 
+The app is also able to be deployed to a webserver using nginx and certbot for HTTPS conncections.
 To deploy the app on a webserver with nginx:
 1. `git clone https://github.com/colton123e/supra-crud-app.git`
-2. Edit the `deploy.sh` script to add your domain and email at the top.
+2. Edit the `deploy.sh` script to add your domain and email at the top. The email is for the certbot certificates, the certificates are generated for the listed domain. It is also recommended to have your FQDN (fully-qualified domain name) listed in the **/etc/hosts** file on your server.
 3. Then run the `deploy.sh` script with `bash deploy.sh`
 
 One line command to get to `deploy.sh` edit:
