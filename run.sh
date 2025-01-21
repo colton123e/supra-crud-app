@@ -1,66 +1,50 @@
 #!/bin/bash
-# Function to detect a compatible package manager and install Node.js
-install_node() {
-  echo "Node.js not found. Attempting to install..."
 
-  # Array of known package managers
-  PACKAGE_MANAGERS=("apt" "apt-get" "dnf" "yum" "pacman" "brew")
+# Required Node.js and npm versions
+REQUIRED_NODE_VERSION="22.13.0"
+REQUIRED_NPM_VERSION="10.9.2"
 
-  for pm in "${PACKAGE_MANAGERS[@]}"; do
-    if command -v $pm >/dev/null 2>&1; then
-      echo "Using '$pm' to install Node.js..."
+# Function to install NVM and required Node.js version
+install_nvm_and_node() {
+  echo "Installing NVM..."
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
 
-      case $pm in
-        apt-get|apt)
-          # Update package list and install Node.js + npm
-          sudo $pm update -y && sudo $pm install -y nodejs npm
-          ;;
-        dnf|yum)
-          sudo $pm install -y nodejs npm
-          ;;
-        pacman)
-          sudo $pm -Sy --noconfirm nodejs npm
-          ;;
-        brew)
-          brew update && brew install node
-          ;;
-        *)
-          echo "Unsupported or unrecognized package manager: $pm"
-          ;;
-      esac
+  # Load NVM into the current session
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-      # After attempting install, break from loop
-      break
-    fi
-  done
+  echo "Installing Node.js version $REQUIRED_NODE_VERSION..."
+  nvm install $REQUIRED_NODE_VERSION
+  nvm alias default $REQUIRED_NODE_VERSION
+}
 
-  # Re-check if node was successfully installed
-  if ! command -v node >/dev/null 2>&1; then
-    echo "Failed to install Node.js with known package managers."
-    echo "Please install Node.js and npm manually, then re-run this script."
-    exit 1
+# Check if Node.js and npm are installed and at the correct versions
+check_node_and_npm() {
+  NODE_VERSION=$(node -v 2>/dev/null || echo "not_installed")
+  NPM_VERSION=$(npm -v 2>/dev/null || echo "not_installed")
+
+  if [[ "$NODE_VERSION" != "v$REQUIRED_NODE_VERSION" ]] || [[ "$NPM_VERSION" != "$REQUIRED_NPM_VERSION" ]]; then
+    echo "Node.js or npm is not installed or not at the required versions."
+    echo "Installing Node.js v$REQUIRED_NODE_VERSION and npm v$REQUIRED_NPM_VERSION using NVM..."
+    install_nvm_and_node
   else
-    echo "Node.js installed successfully!"
+    echo "Node.js and npm are already installed and meet the required versions."
   fi
 }
 
-# 1. Check if Node.js is installed
-if ! command -v node >/dev/null 2>&1; then
-  install_node
+# Ensure Node.js and npm are correctly installed
+if ! command -v node >/dev/null 2>&1 || ! command -v npm >/dev/null 2>&1; then
+  echo "Node.js or npm is not installed. Installing them now..."
+  install_nvm_and_node
 else
-  echo "Node.js is already installed."
+  check_node_and_npm
 fi
 
-# 2. Check if npm is installed
-if ! command -v npm >/dev/null 2>&1; then
-  echo "npm not found. Attempting to install with the same approach..."
-  install_node
-else
-  echo "npm is already installed."
-fi
+# Display Node.js and npm versions
+echo "Using Node.js version: $(node -v)"
+echo "Using npm version: $(npm -v)"
 
-
-echo "Runnning the npm intall commands and starting the server."
+echo "Running npm install commands and starting the server..."
 cd client
 npm install
 npm run build
@@ -68,33 +52,33 @@ npm run build
 cd ../server
 npm install
 
-# Configure the hostname, Start the server and store its PID
+# Configure the hostname, start the server, and store its PID
 # ENV File paths
 ENV_FILE="./.env"
 PORT=5000
 
 # Check if running in WSL
 if grep -qi "microsoft" /proc/version; then
-    echo "Running inside WSL. Setting hostname to localhost in .env file..."
-    HOSTNAME="localhost"
+  echo "Running inside WSL. Setting hostname to localhost in .env file..."
+  HOSTNAME="localhost"
 else
-    echo "Not running in WSL. Using machine hostname..."
-    HOSTNAME=$(hostname)
+  echo "Not running in WSL. Using machine hostname..."
+  HOSTNAME=$(hostname)
 fi
 
 # Ensure .env file exists
 if [ ! -f "$ENV_FILE" ]; then
-    echo ".env file not found. Creating a new one..."
-    touch "$ENV_FILE"
+  echo ".env file not found. Creating a new one..."
+  touch "$ENV_FILE"
 fi
 
 # Update or add API_BASE_URL in the .env file
 if grep -q "^API_BASE_URL=" "$ENV_FILE"; then
-    sed -i "s|^API_BASE_URL=.*|API_BASE_URL=http://$HOSTNAME:$PORT|" "$ENV_FILE"
-    echo "Updated API_BASE_URL to http://$HOSTNAME:$PORT in .env file."
+  sed -i "s|^API_BASE_URL=.*|API_BASE_URL=http://$HOSTNAME:$PORT|" "$ENV_FILE"
+  echo "Updated API_BASE_URL to http://$HOSTNAME:$PORT in .env file."
 else
-    echo "API_BASE_URL=http://$HOSTNAME:$PORT" >> "$ENV_FILE"
-    echo "Added API_BASE_URL=http://$HOSTNAME:$PORT to .env file."
+  echo "API_BASE_URL=http://$HOSTNAME:$PORT" >> "$ENV_FILE"
+  echo "Added API_BASE_URL=http://$HOSTNAME:$PORT to .env file."
 fi
 
 echo
@@ -108,7 +92,6 @@ echo
 echo "Wait 15 seconds for the backend to start"
 echo
 sleep 15
-
 
 # Navigate back to the client directory and start the client
 cd ../client
