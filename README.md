@@ -9,11 +9,13 @@
 - **Database** SQLite
 - **Communication** RESTful APIs
 
-## Automatic Startup
+## Automatic Startup - Dev (Local)
 
 ---
 
-To start the app automatically, run the `run.sh` script using either of the following commands:
+Start by cloning the git reop with `git clone`
+
+To start the app automatically in a dev environment, run the `run.sh` script using either of the following commands:
 
 `./run.sh`
 or
@@ -22,7 +24,10 @@ or
 This script executes the manual startup steps (outlined below) and runs `node server.js`
 and `npm run dev` in the background.
 
-## Manual Startup
+One line command:
+`git clone https://github.com/colton123e/supra-crud-app.git | bash supra-crud-app/run.sh`
+
+## Manual Startup - Dev (Local)
 
 ---
 
@@ -35,6 +40,12 @@ and `npm run dev` in the background.
 3. Start the front-end by running:
    `npm run dev`
    (in the **client** folder).
+
+## Deployment Startup
+
+To deploy the app on a webserver with nginx:
+Edit the `deploy.sh` script to add your domain and email at the top.
+Then run the `deploy.sh` script with `bash deploy.sh`
 
 ## Server ENV Configuration
 
@@ -64,7 +75,3 @@ If using WSL, it may be necessary to manually set the hostname to `localhost` or
 
 - Docker elements are included in the repository. However, deploying the app via Docker
   in its current configuration does not work for deployment on external servers.
-- A deploy script is included to facilitate app deployment on other servers, but it is also
-  currently non-functional.
-- Both issues are related to networking configuration problems and are not a reflection of the
-  application itself. These features were added for personal education and experimentation.

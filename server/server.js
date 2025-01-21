@@ -13,6 +13,8 @@ const path = require("path");
 const fs = require("fs");
 const crypto = require("crypto");
 const os = require("os");
+const http = require("http");
+const https = require("https");
 const sequelize = require("./database/sequelize");
 require("./database/models/User");
 require("./database/models/Item");
@@ -38,7 +40,41 @@ app.get("*", (req, res) => {
 // Configuration
 const PORT = process.env.PORT || 5000;
 const HOSTNAME = process.env.HOSTNAME || os.hostname();
-let API_BASE_URL = process.env.API_BASE_URL || `http://${HOSTNAME}:${PORT}`;
+const CERT_PATH = `/etc/letsencrypt/live/${HOSTNAME}`;
+let API_BASE_URL;
+
+// Determine server type (HTTP/HTTPS)
+let server;
+if (
+  fs.existsSync(`${CERT_PATH}/privkey.pem`) &&
+  fs.existsSync(`${CERT_PATH}/fullchain.pem`)
+) {
+  const sslOptions = {
+    key: fs.readFileSync(`${CERT_PATH}/privkey.pem`),
+    cert: fs.readFileSync(`${CERT_PATH}/fullchain.pem`),
+  };
+  server = https.createServer(sslOptions, app);
+  if (
+    !process.env.API_BASE_URL ||
+    !process.env.API_BASE_URL.startsWith("https://")
+  ) {
+    API_BASE_URL = `https://${HOSTNAME}:${PORT}`;
+  } else {
+    API_BASE_URL = process.env.API_BASE_URL; // Respect existing .env value
+  }
+  console.log("Serving via HTTPS");
+} else {
+  server = http.createServer(app);
+  if (
+    !process.env.API_BASE_URL ||
+    !process.env.API_BASE_URL.startsWith("http://")
+  ) {
+    API_BASE_URL = `http://${HOSTNAME}:${PORT}`;
+  } else {
+    API_BASE_URL = process.env.API_BASE_URL; // Respect existing .env value
+  }
+  console.log("Serving via HTTP");
+}
 
 // Paths
 const envFilePath = path.resolve(__dirname, ".env");
@@ -50,7 +86,7 @@ function updateEnvFile() {
   const requiredEnvVars = {
     JWT_SECRET:
       process.env.JWT_SECRET || crypto.randomBytes(100).toString("hex"),
-    API_BASE_URL: `http://${HOSTNAME}:${PORT}`,
+    API_BASE_URL: API_BASE_URL, // Use detected protocol
   };
 
   let existingVars = {};
@@ -66,8 +102,9 @@ function updateEnvFile() {
       }, {});
   }
 
-  // Add missing variables
+  // Add or update required variables
   const updatedVars = { ...requiredEnvVars, ...existingVars };
+  updatedVars.API_BASE_URL = API_BASE_URL; // Ensure it matches detected protocol
 
   // Write .env file
   const envContent = Object.entries(updatedVars)
@@ -86,9 +123,8 @@ function generateConfig() {
   console.log(`Generated config.json with API base URL: ${API_BASE_URL}`);
 }
 
-// Ensure .env and generate config.json
+// Update .env and generate config.json
 updateEnvFile();
-API_BASE_URL = process.env.API_BASE_URL; // Ensure API_BASE_URL is updated
 generateConfig();
 
 // Synchronize database and start the server
@@ -98,7 +134,7 @@ generateConfig();
     console.log("Connected to the SQLite database.");
     await sequelize.sync({ alter: false });
     console.log("Database synchronized.");
-    app.listen(PORT, "0.0.0.0", () => {
+    server.listen(PORT, "0.0.0.0", () => {
       console.log(`Server running at ${API_BASE_URL}`);
     });
   } catch (err) {
