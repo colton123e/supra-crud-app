@@ -8,46 +8,49 @@ REPO_URL="https://github.com/colton123e/supra-crud-app.git"
 DOMAIN="your.domain.com"
 EMAIL="your.email@email.com"
 
-install_node() {
-  # Array of known package managers
-  PACKAGE_MANAGERS=("apt" "apt-get" "dnf" "yum" "pacman" "brew")
+# Required Node.js and npm versions
+REQUIRED_NODE_VERSION="22.13.0"
+REQUIRED_NPM_VERSION="10.9.2"
 
-  for pm in "${PACKAGE_MANAGERS[@]}"; do
-      echo "Using '$pm' to install required packages (Node.js, npm, Git, Nginx, Certbot)..."
+# Function to install NVM and required Node.js version
+install_nvm_and_node() {
+  echo "Installing NVM..."
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
 
-      case $pm in
-        apt|apt-get)
-          # Update package list and install Node.js + npm
-          sudo $pm update -y && sudo $pm install -y nodejs npm git nginx certbot python3-certbot-nginx
-          ;;
-        dnf|yum)
-          sudo $pm install -y nodejs npm git nginx certbot python3-certbot-nginx
-          ;;
-        pacman)
-          sudo $pm -Sy --noconfirm nodejs npm git nginx certbot python3-certbot-nginx
-          ;;
-        brew)
-          brew update && brew install node npm git nginx certbot python3-certbot-nginx
-          ;;
-        *)
-          echo "Unsupported or unrecognized package manager: $pm"
-          ;;
-      esac
-      # After attempting install, break from loop
-      break
-  done
+  # Load NVM into the current session
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-  # Re-check if node was successfully installed
-  if ! command -v node >/dev/null 2>&1; then
-    echo "Failed to install Node.js with known package managers."
-    echo "Please install Node.js and npm manually, then re-run this script."
-    exit 1
+  echo "Installing Node.js version $REQUIRED_NODE_VERSION..."
+  nvm install $REQUIRED_NODE_VERSION
+  nvm alias default $REQUIRED_NODE_VERSION
+}
+
+# Check if Node.js and npm are installed and at the correct versions
+check_node_and_npm() {
+  NODE_VERSION=$(node -v 2>/dev/null || echo "not_installed")
+  NPM_VERSION=$(npm -v 2>/dev/null || echo "not_installed")
+
+  if [[ "$NODE_VERSION" != "v$REQUIRED_NODE_VERSION" ]] || [[ "$NPM_VERSION" != "$REQUIRED_NPM_VERSION" ]]; then
+    echo "Node.js or npm is not installed or not at the required versions."
+    echo "Installing Node.js v$REQUIRED_NODE_VERSION and npm v$REQUIRED_NPM_VERSION using NVM..."
+    install_nvm_and_node
   else
-    echo "Node.js installed successfully!"
+    echo "Node.js and npm are already installed and meet the required versions."
   fi
 }
 
-install_node
+# Ensure Node.js and npm are correctly installed
+if ! command -v node >/dev/null 2>&1 || ! command -v npm >/dev/null 2>&1; then
+  echo "Node.js or npm is not installed. Installing them now..."
+  install_nvm_and_node
+else
+  check_node_and_npm
+fi
+
+# Display Node.js and npm versions
+echo "Using Node.js version: $(node -v)"
+echo "Using npm version: $(npm -v)"
 
 # Clone the repository
 if [ ! -d "$APP_DIR" ]; then
