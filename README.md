@@ -13,7 +13,7 @@
 
 ---
 
-Start by cloning the git reop with `git clone`
+Start by cloning the git repo with `git clone https://github.com/colton123e/supra-crud-app.git`
 
 To start the app automatically in a dev environment, run the `run.sh` script using either of the following commands:
 
@@ -44,10 +44,13 @@ One line command:
 ## Deployment Startup
 
 To deploy the app on a webserver with nginx:
-Edit the `deploy.sh` script to add your domain and email at the top.
-Then run the `deploy.sh` script with `bash deploy.sh`
+1. `git clone https://github.com/colton123e/supra-crud-app.git`
+2. Edit the `deploy.sh` script to add your domain and email at the top.
+3. Then run the `deploy.sh` script with `bash deploy.sh`
+
 One line command to get to `deploy.sh` edit:
 `git clone https://github.com/colton123e/supra-crud-app.git; cd supra-crud-app; nano deploy.sh`
+Then `bash deploy.sh`
 
 ## Server ENV Configuration
 
