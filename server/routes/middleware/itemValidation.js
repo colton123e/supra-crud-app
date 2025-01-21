@@ -13,7 +13,7 @@ const sanitizeTextInput = (fieldName) =>
     .trim()
     .customSanitizer((value) => {
       // Allow apostrophes and escape other special characters
-      return value.replace(/[^a-zA-Z0-9\s'`~,.;\?\-=+&%!$#]/g, "");
+      return value.replace(/[^a-zA-Z0-9\s'`~,.:;\?\-=+&%!$#]/g, "");
     });
 
 const itemValidation = [
