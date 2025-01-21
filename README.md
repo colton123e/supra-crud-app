@@ -25,7 +25,7 @@ This script executes the manual startup steps (outlined below) and runs `node se
 and `npm run dev` in the background.
 
 One line command:
-`git clone https://github.com/colton123e/supra-crud-app.git | bash supra-crud-app/run.sh`
+`git clone https://github.com/colton123e/supra-crud-app.git; cd supra-crud-app; bash run.sh`
 
 ## Manual Startup - Dev (Local)
 
@@ -46,6 +46,8 @@ One line command:
 To deploy the app on a webserver with nginx:
 Edit the `deploy.sh` script to add your domain and email at the top.
 Then run the `deploy.sh` script with `bash deploy.sh`
+One line command to get to `deploy.sh` edit:
+`git clone https://github.com/colton123e/supra-crud-app.git; cd supra-crud-app; nano deploy.sh`
 
 ## Server ENV Configuration
 
